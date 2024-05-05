@@ -69,9 +69,7 @@ class WebSocketClientApp(tk.Tk):
     def run_event_loop(self):
         logging.debug("Creating new asyncio event loop")
         loop = asyncio.new_event_loop()
-        asyncio.set_event_loop(loop)
         loop.run_until_complete(self.connect_to_websocket())
-        loop.close()  # Properly close the event loop
         logging.info("Asyncio event loop running")
 
     async def connect_to_websocket(self):
@@ -124,7 +122,7 @@ class WebSocketClientApp(tk.Tk):
 if __name__ == "__main__":
     app = WebSocketClientApp()
     try:
-        app.mainloop()
+        asyncio.run(app.mainloop())
     finally:
         if app.event_loop_thread and app.event_loop_thread.is_alive():
             asyncio.run_coroutine_threadsafe(

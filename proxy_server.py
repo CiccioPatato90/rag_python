@@ -9,14 +9,36 @@ logging.basicConfig(
 )
 
 app = FastAPI()
-connected = True
 
 
-@app.websocket("/ws")
+class ConnectionManager:
+    """Class defining socket events"""
+    def __init__(self):
+        """init method, keeping track of connections"""
+        self.active_connections = []
+    
+    async def connect(self, websocket: WebSocket):
+        """connect event"""
+        await websocket.accept()
+        self.active_connections.append(websocket)
+
+    async def send_personal_message(self, message: str, websocket: WebSocket):
+        """Direct Message"""
+        await websocket.send_text(message)
+    
+    def disconnect(self, websocket: WebSocket):
+        """disconnect event"""
+        self.active_connections.remove(websocket)
+        
+        
+manager = ConnectionManager()
+
+
+@app.websocket("/")
 async def websocket_endpoint(websocket: WebSocket):
     await websocket.accept()
     try:
-        while connected:
+        while True:
             query = await websocket.receive_text()  # Receive queries from the client
             # Process the query and send responses
 
@@ -25,7 +47,7 @@ async def websocket_endpoint(websocket: WebSocket):
                 "http://ollama-api:11434/api/generate"  # Note the container name
             )
             payload = {
-                "model": "tinyllama",
+                "model": "api-model:latest",
                 "stream": False,
                 "prompt": query,
             }
@@ -43,11 +65,11 @@ async def websocket_endpoint(websocket: WebSocket):
                 return_message = result["response"]
             else:
                 return_message = f"Error: {response.status_code}, {response.text}"
-
-            await websocket.send_text(return_message)
-
+            await manager.send_personal_message(return_message)
+            
     except WebSocketDisconnect as e:
         # Handle WebSocket disconnects
         print("WebSocket disconnected:", e)
+        await manager.send_personal_message(f"Bye!!")
     except Exception as e:
-        await websocket.send_text(f"WebSocket error: {e}")
+        await manager.send_personal_message(f"WebSocket error: {e}")
