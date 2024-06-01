@@ -37,23 +37,9 @@ RAG Python is a project that leverages Retrieval-Augmented Generation (RAG) to e
    docker-compose up -d
    \`\`\`
 
-4. **Initialize the Embedding Model**:
-   \`\`\`bash
-   python initialize_embedding_model.py
-   \`\`\`
-
 ## Usage
 
-Once the services are up and running, you can interact with the system through the provided APIs and WebSocket endpoints. The models and services are pre-initialized to ensure fast and efficient processing of requests.
-
-### API Endpoints
-
-- **/api/query**: Endpoint to submit queries and get responses from the LLM.
-- **/api/status**: Endpoint to check the status of various services.
-
-### WebSocket Endpoints
-
-- **/ws/chat**: WebSocket endpoint for real-time chat interactions with the LLM.
+Once the services are up and running, run the application entry point in the main.py file
 
 ## Contributing
 
